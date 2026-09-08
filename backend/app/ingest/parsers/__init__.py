@@ -11,6 +11,7 @@ format; those are NOT implemented — there was no real per-vendor sample to
 build and verify a parser against, and a parser nobody has tested against a
 real export is worse than an honest "not supported yet". See ARCHITECTURE.md §5.1.
 """
+
 from __future__ import annotations
 
 from app.ingest.parsers.base import IngestParseError, TranscriptParser

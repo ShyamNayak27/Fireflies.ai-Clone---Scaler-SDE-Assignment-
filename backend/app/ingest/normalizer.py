@@ -19,6 +19,7 @@ rows. Three jobs, always in this order:
    grouping, so a transcript that was chopped into many small cues by its
    source format reads the same as one Whisper would have produced.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -81,7 +82,11 @@ def _use_real_timings(
             next_start = utterances[i + 1].start_ms if i + 1 < len(utterances) else None
             word_count = max(1, len(u.text.split()))
             estimate = max(900, round(word_count / WORDS_PER_MINUTE * 60_000))
-            end_ms = next_start if next_start is not None and next_start > start_ms else start_ms + estimate
+            end_ms = (
+                next_start
+                if next_start is not None and next_start > start_ms
+                else start_ms + estimate
+            )
         segments.append(
             NormalizedSegment(
                 speaker_label=speaker.label,
@@ -100,7 +105,10 @@ def _merge_consecutive(segments: list[NormalizedSegment]) -> list[NormalizedSegm
     merged = [segments[0]]
     for seg in segments[1:]:
         prev = merged[-1]
-        if seg.speaker_label == prev.speaker_label and seg.start_ms - prev.end_ms <= GAP_MERGE_THRESHOLD_MS:
+        if (
+            seg.speaker_label == prev.speaker_label
+            and seg.start_ms - prev.end_ms <= GAP_MERGE_THRESHOLD_MS
+        ):
             merged[-1] = NormalizedSegment(
                 speaker_label=prev.speaker_label,
                 avatar_color=prev.avatar_color,

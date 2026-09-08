@@ -17,13 +17,16 @@ consistently — otherwise the whole paste becomes one unattributed utterance
 rather than guessing wrong. It always sniffs a small positive score so the
 registry has somewhere to land rather than rejecting an upload outright.
 """
+
 from __future__ import annotations
 
 import re
 
 from app.ingest.types import RawTranscript, RawUtterance
 
-_OTTER_CUE_RE = re.compile(r"^(?P<name>[A-Za-z][\w .'-]{0,60})\s{2,}(?P<ts>\d{1,2}:\d{2}(?::\d{2})?)\s*$")
+_OTTER_CUE_RE = re.compile(
+    r"^(?P<name>[A-Za-z][\w .'-]{0,60})\s{2,}(?P<ts>\d{1,2}:\d{2}(?::\d{2})?)\s*$"
+)
 _SPEAKER_LINE_RE = re.compile(r"^([A-Za-z][\w .'-]{0,60}):\s+(.+)$")
 
 

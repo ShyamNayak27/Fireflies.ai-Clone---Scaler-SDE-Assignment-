@@ -1,4 +1,5 @@
 """SQLAlchemy models. One module per aggregate, mirroring docs/ARCHITECTURE.md §4."""
+
 from __future__ import annotations
 
 import uuid
@@ -23,19 +24,15 @@ class User(Base):
     avatar_url: Mapped[str | None]
     created_at: Mapped[str] = mapped_column(default=_now)
 
-    meetings: Mapped[list["Meeting"]] = relationship(back_populates="owner")
+    meetings: Mapped[list[Meeting]] = relationship(back_populates="owner")
 
 
 class Meeting(Base):
     __tablename__ = "meetings"
     __table_args__ = (
         CheckConstraint("media_type IN ('audio','video')", name="ck_meeting_media_type"),
-        CheckConstraint(
-            "source IN ('upload','paste','manual','seed')", name="ck_meeting_source"
-        ),
-        CheckConstraint(
-            "status IN ('processing','ready','failed')", name="ck_meeting_status"
-        ),
+        CheckConstraint("source IN ('upload','paste','manual','seed')", name="ck_meeting_source"),
+        CheckConstraint("status IN ('processing','ready','failed')", name="ck_meeting_status"),
         # This composite index IS the cursor-pagination key — see repositories/meetings.py
         Index("ix_meetings_recency", "owner_id", "started_at", "id"),
     )
@@ -55,19 +52,19 @@ class Meeting(Base):
     updated_at: Mapped[str] = mapped_column(default=_now)
 
     owner: Mapped[User] = relationship(back_populates="meetings")
-    participants: Mapped[list["Participant"]] = relationship(
+    participants: Mapped[list[Participant]] = relationship(
         back_populates="meeting", cascade="all, delete-orphan"
     )
-    segments: Mapped[list["TranscriptSegment"]] = relationship(
+    segments: Mapped[list[TranscriptSegment]] = relationship(
         back_populates="meeting", cascade="all, delete-orphan", order_by="TranscriptSegment.idx"
     )
-    summary: Mapped["Summary | None"] = relationship(
+    summary: Mapped[Summary | None] = relationship(
         back_populates="meeting", cascade="all, delete-orphan"
     )
-    chapters: Mapped[list["Chapter"]] = relationship(
+    chapters: Mapped[list[Chapter]] = relationship(
         back_populates="meeting", cascade="all, delete-orphan", order_by="Chapter.position"
     )
-    action_items: Mapped[list["ActionItem"]] = relationship(
+    action_items: Mapped[list[ActionItem]] = relationship(
         back_populates="meeting", cascade="all, delete-orphan"
     )
 
@@ -134,7 +131,7 @@ class Chapter(Base):
     position: Mapped[int]
 
     meeting: Mapped[Meeting] = relationship(back_populates="chapters")
-    notes: Mapped[list["Note"]] = relationship(cascade="all, delete-orphan", order_by="Note.position")
+    notes: Mapped[list[Note]] = relationship(cascade="all, delete-orphan", order_by="Note.position")
 
 
 class Note(Base):
@@ -228,9 +225,7 @@ class Job(Base):
     )
 
     id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
-    meeting_id: Mapped[int | None] = mapped_column(
-        ForeignKey("meetings.id", ondelete="CASCADE")
-    )
+    meeting_id: Mapped[int | None] = mapped_column(ForeignKey("meetings.id", ondelete="CASCADE"))
     type: Mapped[str]
     status: Mapped[str] = mapped_column(default="queued")
     progress: Mapped[int] = mapped_column(default=0)

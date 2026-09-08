@@ -9,6 +9,7 @@ feature costs almost nothing beyond what already existed. It goes through
 (exact-phrase) — verified live that the latter matches nothing for a natural
 question, since it phrase-wraps the whole input; see `app.ai.rag.extract_keywords`.
 """
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession

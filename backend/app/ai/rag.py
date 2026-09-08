@@ -12,6 +12,7 @@ synthesis" middle ground worth building — meaningfully answering a question
 from scattered excerpts requires an LLM; anything else is honestly just search
 results, so that's what the fallback presents itself as.
 """
+
 from __future__ import annotations
 
 import re
@@ -138,7 +139,9 @@ class LLMAnswerer:
         answer_text = resp.choices[0].message.content or ""
         cited_numbers = {c.number for c in context if f"[{c.number}]" in answer_text}
         citations = [
-            Citation(c.number, c.segment_id, c.start_ms) for c in context if c.number in cited_numbers
+            Citation(c.number, c.segment_id, c.start_ms)
+            for c in context
+            if c.number in cited_numbers
         ] or [Citation(c.number, c.segment_id, c.start_ms) for c in context]
         return AskResult(answer=answer_text, citations=citations, model=self._model)
 

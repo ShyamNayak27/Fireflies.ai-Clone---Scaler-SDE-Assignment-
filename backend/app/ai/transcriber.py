@@ -7,6 +7,7 @@ module's job is only to make the capability real and swappable.
 fails loudly and immediately (a clear job error) rather than silently accepting an
 upload it can never process.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -101,7 +102,9 @@ class OpenAIWhisperTranscriber:
 
         if buffer:
             utterances.append(
-                TranscribedUtterance(round(buf_start * 1000), round(prev_end * 1000), " ".join(buffer))
+                TranscribedUtterance(
+                    round(buf_start * 1000), round(prev_end * 1000), " ".join(buffer)
+                )
             )
 
         duration_ms = round(words[-1].end * 1000)

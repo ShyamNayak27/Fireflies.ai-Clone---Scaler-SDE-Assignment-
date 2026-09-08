@@ -12,6 +12,7 @@ under a single "Unknown speaker" participant rather than being split apart —
 there is no signal to split them on, so guessing would be worse than one
 honest bucket.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

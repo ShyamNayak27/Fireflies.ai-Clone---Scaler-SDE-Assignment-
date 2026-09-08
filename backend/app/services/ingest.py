@@ -4,6 +4,7 @@ Job lifecycle, same "materialize Meeting/Participant/TranscriptSegment on
 success" shape, so every downstream feature still needs no special case for
 "a meeting that came from ingest" vs. "a meeting that came from a recording".
 """
+
 from __future__ import annotations
 
 import json

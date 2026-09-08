@@ -3,6 +3,7 @@
 The wire format is intentionally opaque (base64 of a small tuple) so it can change
 without breaking clients — see docs/ARCHITECTURE.md §6.3.
 """
+
 from __future__ import annotations
 
 import base64

@@ -7,6 +7,7 @@ and behave the same way across the codebase.
 can pick the *best* match instead of the first format that says "maybe" — several
 of these formats can produce false-positive weak matches on a generic text blob
 (e.g. a plain-text transcript that happens to contain a line of digits)."""
+
 from __future__ import annotations
 
 from typing import Protocol

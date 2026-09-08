@@ -6,6 +6,7 @@ assumed speaking rate. This is the same estimator, reused here so hand-written s
 dialogue gets realistic, internally-consistent timing instead of hand-typed numbers
 that would drift the moment a line changes.
 """
+
 from __future__ import annotations
 
 WORDS_PER_MINUTE = 152

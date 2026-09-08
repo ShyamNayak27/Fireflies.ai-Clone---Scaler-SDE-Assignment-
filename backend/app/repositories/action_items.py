@@ -1,4 +1,5 @@
 """SQL only — see the layering rule in docs/ARCHITECTURE.md §6.1."""
+
 from __future__ import annotations
 
 from sqlalchemy import func, select
@@ -67,5 +68,7 @@ async def list_existing_texts(session: AsyncSession, *, meeting_id: int) -> set[
     run otherwise piles up duplicates every time it's clicked (caught live:
     three re-summarize calls left twenty action items on a meeting with five
     genuine ones)."""
-    rows = await session.execute(select(func.lower(ActionItem.text)).where(ActionItem.meeting_id == meeting_id))
+    rows = await session.execute(
+        select(func.lower(ActionItem.text)).where(ActionItem.meeting_id == meeting_id)
+    )
     return {r[0] for r in rows}

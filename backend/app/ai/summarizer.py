@@ -13,6 +13,7 @@ generalize to a freshly-ingested one anyway. So `summarizer_backend: "seeded"`
 documented honestly in `get_summarizer` below rather than pretending a third
 implementation exists.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,17 +25,112 @@ from app.core.config import get_settings
 MAX_WINDOW_MS = 10 * 60 * 1000  # ~10-minute map chunks, per docs/ARCHITECTURE.md §9.1
 MIN_WINDOW_MS = 90 * 1000  # a 3-minute demo meeting still deserves more than one chapter
 STOPWORDS = {
-    "the", "a", "an", "and", "or", "but", "so", "is", "are", "was", "were", "be",
-    "been", "to", "of", "in", "on", "for", "with", "that", "this", "it", "we",
-    "you", "i", "they", "he", "she", "at", "as", "by", "from", "about", "just",
-    "like", "can", "will", "would", "should", "could", "have", "has", "had",
-    "do", "does", "did", "not", "if", "what", "which", "who", "when", "where",
-    "how", "there", "here", "our", "your", "my", "us", "them", "also", "then",
-    "than", "some", "all", "one", "get", "got", "going", "know", "think",
-    "let", "lets", "yeah", "okay", "ok", "gonna", "wanna", "really", "actually",
-    "right", "well", "thing", "things", "still", "much", "even", "way", "little",
-    "bit", "sure", "maybe", "look", "looking", "make", "making", "made", "want",
-    "wanted", "need", "needs", "needed", "come", "coming", "guys",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "but",
+    "so",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "to",
+    "of",
+    "in",
+    "on",
+    "for",
+    "with",
+    "that",
+    "this",
+    "it",
+    "we",
+    "you",
+    "i",
+    "they",
+    "he",
+    "she",
+    "at",
+    "as",
+    "by",
+    "from",
+    "about",
+    "just",
+    "like",
+    "can",
+    "will",
+    "would",
+    "should",
+    "could",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
+    "not",
+    "if",
+    "what",
+    "which",
+    "who",
+    "when",
+    "where",
+    "how",
+    "there",
+    "here",
+    "our",
+    "your",
+    "my",
+    "us",
+    "them",
+    "also",
+    "then",
+    "than",
+    "some",
+    "all",
+    "one",
+    "get",
+    "got",
+    "going",
+    "know",
+    "think",
+    "let",
+    "lets",
+    "yeah",
+    "okay",
+    "ok",
+    "gonna",
+    "wanna",
+    "really",
+    "actually",
+    "right",
+    "well",
+    "thing",
+    "things",
+    "still",
+    "much",
+    "even",
+    "way",
+    "little",
+    "bit",
+    "sure",
+    "maybe",
+    "look",
+    "looking",
+    "make",
+    "making",
+    "made",
+    "want",
+    "wanted",
+    "need",
+    "needs",
+    "needed",
+    "come",
+    "coming",
+    "guys",
 }
 _ACTION_PATTERNS = [
     re.compile(r"\bI['’]ll\b", re.IGNORECASE),
@@ -111,7 +207,9 @@ def _adaptive_window_ms(segments: list[SegmentInput]) -> int:
     return max(MIN_WINDOW_MS, min(MAX_WINDOW_MS, total_ms // 3 or MIN_WINDOW_MS))
 
 
-def chunk_by_time(segments: list[SegmentInput], window_ms: int | None = None) -> list[list[SegmentInput]]:
+def chunk_by_time(
+    segments: list[SegmentInput], window_ms: int | None = None
+) -> list[list[SegmentInput]]:
     """Chunk boundaries fall on segment (i.e. speaker-turn) boundaries, never
     mid-utterance — a chunk starts fresh once the running window is exceeded."""
     if not segments:
@@ -145,12 +243,16 @@ class HeuristicSummarizer:
         chapters = [self._chapter_for(chunk) for chunk in chunks]
         overview = self._overview_for(meeting_title, chapters, segments)
         action_items = self._action_items_for(segments)
-        return SummaryDraft(overview=overview, model=None, chapters=chapters, action_items=action_items)
+        return SummaryDraft(
+            overview=overview, model=None, chapters=chapters, action_items=action_items
+        )
 
     def _chapter_for(self, chunk: list[SegmentInput]) -> ChapterDraft:
         title = self._keyword_title(chunk)
         notes = self._notes_for(chunk)
-        return ChapterDraft(title=title, start_ms=chunk[0].start_ms, end_ms=chunk[-1].end_ms, notes=notes)
+        return ChapterDraft(
+            title=title, start_ms=chunk[0].start_ms, end_ms=chunk[-1].end_ms, notes=notes
+        )
 
     def _keyword_title(self, chunk: list[SegmentInput]) -> str:
         counts: dict[str, int] = {}
@@ -177,7 +279,10 @@ class HeuristicSummarizer:
         ranked = sorted(chunk, key=lambda s: -len(s.text))[:max_notes]
         ranked.sort(key=lambda s: s.start_ms)
         return [
-            NoteDraft(text=seg.text if len(seg.text) <= 160 else seg.text[:157] + "…", start_ms=seg.start_ms)
+            NoteDraft(
+                text=seg.text if len(seg.text) <= 160 else seg.text[:157] + "…",
+                start_ms=seg.start_ms,
+            )
             for seg in ranked
         ]
 
@@ -193,7 +298,11 @@ class HeuristicSummarizer:
         else:
             topics = ", ".join(titles[:-1]) + f", and {titles[-1]}"
         who = f" with {', '.join(speakers)}" if speakers else ""
-        return f"\"{meeting_title}\"{who} covered: {topics}." if topics else f"\"{meeting_title}\" — no substantive content was extracted."
+        return (
+            f'"{meeting_title}"{who} covered: {topics}.'
+            if topics
+            else f'"{meeting_title}" — no substantive content was extracted.'
+        )
 
     def _action_items_for(self, segments: list[SegmentInput]) -> list[ActionItemDraft]:
         items: list[ActionItemDraft] = []
@@ -271,7 +380,9 @@ class LLMSummarizer:
                 )
 
         overview = await self._reduce_overview(meeting_title, mini_summaries)
-        return SummaryDraft(overview=overview, model=self._model, chapters=chapters, action_items=action_items)
+        return SummaryDraft(
+            overview=overview, model=self._model, chapters=chapters, action_items=action_items
+        )
 
     def _resolve_cite(self, chunk: list[SegmentInput], cite: int | None) -> int | None:
         seg = self._segment_for_cite(chunk, cite)
@@ -289,7 +400,7 @@ class LLMSummarizer:
         )
         prompt = (
             "You are summarizing one segment of a meeting transcript. Numbered lines are "
-            "the source; cite them by their number in the \"cite\" field of anything you "
+            'the source; cite them by their number in the "cite" field of anything you '
             "extract, never invent a number outside the given range.\n\n"
             f"TRANSCRIPT SEGMENT:\n{context}\n\n"
             "Respond with strict JSON: "
@@ -310,7 +421,7 @@ class LLMSummarizer:
         prompt = (
             f'Write one short paragraph (2-4 sentences) summarizing the meeting "{meeting_title}" '
             f"given these section summaries, in chronological order:\n{joined}\n\n"
-            "Respond with strict JSON: {\"overview\": \"...\"}"
+            'Respond with strict JSON: {"overview": "..."}'
         )
         resp = await self._client.chat.completions.create(
             model=self._model,

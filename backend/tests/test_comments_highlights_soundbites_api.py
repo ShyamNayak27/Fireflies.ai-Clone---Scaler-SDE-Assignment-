@@ -1,6 +1,7 @@
 """Comments, highlights, and soundbites (Milestone 12) — all thin CRUD over
 existing schema tables (app/models/meeting.py), exercised the same way the
 already-shipped action-items CRUD is."""
+
 from __future__ import annotations
 
 from httpx import AsyncClient
@@ -14,7 +15,9 @@ async def _first_segment_id(client: AsyncClient, meeting_id: int) -> int:
 async def test_comment_lifecycle(client: AsyncClient, seeded_meeting_id: int) -> None:
     segment_id = await _first_segment_id(client, seeded_meeting_id)
 
-    created = await client.post(f"/api/segments/{segment_id}/comments", json={"body": "Nice catch."})
+    created = await client.post(
+        f"/api/segments/{segment_id}/comments", json={"body": "Nice catch."}
+    )
     assert created.status_code == 201
     comment = created.json()
 

@@ -8,6 +8,7 @@ Cue timestamp line: `00:00:01.500 --> 00:00:04.200` (hours segment optional).
 Speaker: either a `<v Name>text</v>` voice tag, or a `Name: text` prefix on the
 cue text (Zoom sometimes emits the latter instead of a voice tag).
 """
+
 from __future__ import annotations
 
 import re

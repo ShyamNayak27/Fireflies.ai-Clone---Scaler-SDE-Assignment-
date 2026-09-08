@@ -1,4 +1,5 @@
 """SQL only. No HTTP concepts here — see the layering rule in docs/ARCHITECTURE.md §6.1."""
+
 from __future__ import annotations
 
 from sqlalchemy import delete as sa_delete
@@ -50,9 +51,11 @@ async def list_meetings(
         # A join rather than a subquery — meetings with more than one matching
         # tag can't happen here since a meeting has at most one link row per
         # tag, so this can't fan out duplicate rows.
-        stmt = stmt.join(MeetingTag, MeetingTag.meeting_id == Meeting.id).join(
-            Tag, Tag.id == MeetingTag.tag_id
-        ).where(Tag.name == tag)
+        stmt = (
+            stmt.join(MeetingTag, MeetingTag.meeting_id == Meeting.id)
+            .join(Tag, Tag.id == MeetingTag.tag_id)
+            .where(Tag.name == tag)
+        )
     if participant:
         # Unlike tag, a meeting can have several participants matching the same
         # substring (rare, but possible) — this join can fan out, so it's the
@@ -81,7 +84,11 @@ async def list_meetings(
         # actual SQL row-value comparison, which is what keyset pagination needs
         # to stay stable across rows sharing the same `started_at`.
         op = tuple_(Meeting.started_at, Meeting.id)
-        stmt = stmt.where(op > (cursor_started_at, cursor_id) if oldest_first else op < (cursor_started_at, cursor_id))
+        stmt = stmt.where(
+            op > (cursor_started_at, cursor_id)
+            if oldest_first
+            else op < (cursor_started_at, cursor_id)
+        )
 
     rows = list((await session.execute(stmt)).scalars().all())
     next_cursor = None
@@ -116,9 +123,7 @@ async def delete_meeting(session: AsyncSession, *, meeting_id: int) -> None:
 
 async def get_meeting(session: AsyncSession, meeting_id: int) -> Meeting | None:
     stmt = (
-        select(Meeting)
-        .where(Meeting.id == meeting_id)
-        .options(selectinload(Meeting.participants))
+        select(Meeting).where(Meeting.id == meeting_id).options(selectinload(Meeting.participants))
     )
     return (await session.execute(stmt)).scalar_one_or_none()
 

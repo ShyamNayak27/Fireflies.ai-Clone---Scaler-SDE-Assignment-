@@ -11,6 +11,7 @@ timestamp, that drops or repeats rows across pages instead of paging through
 all of them exactly once. `repositories/meetings.py` fixes this with
 `tuple_(...)`; this test is what would have caught it if it regressed.
 """
+
 from __future__ import annotations
 
 from collections.abc import AsyncIterator

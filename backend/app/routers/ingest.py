@@ -4,6 +4,7 @@ kicks off parsing/normalization/scrubbing as a background job — the client
 polls the exact same `GET /api/jobs/{id}` every other async ingest job uses
 (recordings included). Exactly one of `file` / `text` must be given.
 """
+
 from __future__ import annotations
 
 from fastapi import (
@@ -66,7 +67,12 @@ async def ingest_transcript(
         raise HTTPException(422, "The transcript is empty.")
 
     job = await create_ingest_job(
-        session, owner_id=DEMO_OWNER_ID, raw_text=raw_text, filename=filename, title=title, source=source
+        session,
+        owner_id=DEMO_OWNER_ID,
+        raw_text=raw_text,
+        filename=filename,
+        title=title,
+        source=source,
     )
     background_tasks.add_task(_run_job_in_background, job.id)
     return JobOut.model_validate(job)

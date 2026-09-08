@@ -1,13 +1,16 @@
 """Action item CRUD (Milestone 9) — kept covered here since it was the app's
 first client-authored mutation and the pattern every later write (tags,
 comments, highlights, soundbites) followed."""
+
 from __future__ import annotations
 
 from httpx import AsyncClient
 
 
 async def test_create_complete_and_delete_action_item(client: AsyncClient, meeting_id: int) -> None:
-    created = await client.post(f"/api/meetings/{meeting_id}/action-items", json={"text": "Follow up"})
+    created = await client.post(
+        f"/api/meetings/{meeting_id}/action-items", json={"text": "Follow up"}
+    )
     assert created.status_code == 201
     item = created.json()
     assert item["completed"] is False

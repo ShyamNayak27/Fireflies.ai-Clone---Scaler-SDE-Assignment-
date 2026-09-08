@@ -3,6 +3,7 @@
 Every error response has the same shape, so the frontend has exactly one error
 type to handle instead of a different ad-hoc JSON shape per endpoint.
 """
+
 from __future__ import annotations
 
 from fastapi import FastAPI, Request, status

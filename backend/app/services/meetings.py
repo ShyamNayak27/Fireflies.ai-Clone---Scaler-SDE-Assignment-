@@ -1,4 +1,5 @@
 """Business logic layer. No SQL (that's repositories/), no HTTP (that's routers/)."""
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,7 +52,9 @@ async def update_meeting(
     session: AsyncSession, *, meeting_id: int, title: str | None, description: str | None
 ) -> Meeting:
     meeting = await get_meeting_or_404(session, meeting_id)
-    meeting = await meetings_repo.update_meeting(session, meeting=meeting, title=title, description=description)
+    meeting = await meetings_repo.update_meeting(
+        session, meeting=meeting, title=title, description=description
+    )
     await session.commit()
     await session.refresh(meeting, attribute_names=["participants"])
     return meeting

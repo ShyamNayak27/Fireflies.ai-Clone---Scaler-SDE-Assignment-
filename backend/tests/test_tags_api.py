@@ -1,4 +1,5 @@
 """Tags CRUD + list-filter (Milestone 12)."""
+
 from __future__ import annotations
 
 from httpx import AsyncClient
@@ -31,7 +32,9 @@ async def test_meetings_list_filters_by_tag(client: AsyncClient, meeting_id: int
     filtered = (await client.get("/api/meetings", params={"tag": "FilterMe"})).json()
     assert any(m["id"] == meeting_id for m in filtered["items"])
 
-    unfiltered_by_missing_tag = (await client.get("/api/meetings", params={"tag": "NoSuchTag"})).json()
+    unfiltered_by_missing_tag = (
+        await client.get("/api/meetings", params={"tag": "NoSuchTag"})
+    ).json()
     assert unfiltered_by_missing_tag["items"] == []
 
 

@@ -1,4 +1,5 @@
 """GET /api/meetings/{id}/export (Milestone 12)."""
+
 from __future__ import annotations
 
 from httpx import AsyncClient
@@ -17,7 +18,9 @@ async def test_export_markdown_contains_transcript_and_headers(
     assert "crack detection model precision" in body
 
 
-async def test_export_txt_has_no_markdown_syntax(client: AsyncClient, seeded_meeting_id: int) -> None:
+async def test_export_txt_has_no_markdown_syntax(
+    client: AsyncClient, seeded_meeting_id: int
+) -> None:
     resp = await client.get(f"/api/meetings/{seeded_meeting_id}/export", params={"format": "txt"})
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("text/plain")

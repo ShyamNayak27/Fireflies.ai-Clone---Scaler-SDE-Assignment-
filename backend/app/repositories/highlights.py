@@ -1,4 +1,5 @@
 """SQL only — see the layering rule in docs/ARCHITECTURE.md §6.1."""
+
 from __future__ import annotations
 
 from sqlalchemy import select

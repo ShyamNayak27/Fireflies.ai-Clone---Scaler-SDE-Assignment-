@@ -9,6 +9,7 @@ Verified against a live Supabase Postgres instance during development: the
 generated `search_vector` column, the GIN index, ts_rank ordering, and ts_headline
 highlighting all confirmed working on real inserted rows.
 """
+
 from __future__ import annotations
 
 from sqlalchemy import text
@@ -19,9 +20,10 @@ async def search_global(
     session: AsyncSession, *, owner_id: int, query: str, limit: int = 20
 ) -> list[dict]:
     rows = (
-        await session.execute(
-            text(
-                """
+        (
+            await session.execute(
+                text(
+                    """
                 SELECT m.id AS meeting_id, m.title AS meeting_title,
                        s.id AS segment_id, s.start_ms,
                        p.name AS speaker_name,
@@ -38,10 +40,13 @@ async def search_global(
                 ORDER BY rank DESC
                 LIMIT :limit
                 """
-            ),
-            {"q": query, "owner_id": owner_id, "limit": limit},
+                ),
+                {"q": query, "owner_id": owner_id, "limit": limit},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
     return [dict(r) for r in rows]
 
 
@@ -49,9 +54,10 @@ async def search_within_meeting(
     session: AsyncSession, *, meeting_id: int, query: str
 ) -> list[dict]:
     rows = (
-        await session.execute(
-            text(
-                """
+        (
+            await session.execute(
+                text(
+                    """
                 SELECT s.id AS segment_id, s.start_ms,
                        ts_headline(
                            'english', s.text, websearch_to_tsquery('english', :q),
@@ -62,10 +68,13 @@ async def search_within_meeting(
                   AND s.meeting_id = :meeting_id
                 ORDER BY ts_rank(s.search_vector, websearch_to_tsquery('english', :q)) DESC
                 """
-            ),
-            {"q": query, "meeting_id": meeting_id},
+                ),
+                {"q": query, "meeting_id": meeting_id},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
     return [dict(r) for r in rows]
 
 
@@ -82,9 +91,10 @@ async def search_within_meeting_any(
         return []
     match_query = " or ".join(keywords)
     rows = (
-        await session.execute(
-            text(
-                """
+        (
+            await session.execute(
+                text(
+                    """
                 SELECT s.id AS segment_id, s.start_ms,
                        ts_headline(
                            'english', s.text, websearch_to_tsquery('english', :q),
@@ -97,8 +107,11 @@ async def search_within_meeting_any(
                 ORDER BY rank DESC
                 LIMIT :limit
                 """
-            ),
-            {"q": match_query, "meeting_id": meeting_id, "limit": limit},
+                ),
+                {"q": match_query, "meeting_id": meeting_id, "limit": limit},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
     return [dict(r) for r in rows]

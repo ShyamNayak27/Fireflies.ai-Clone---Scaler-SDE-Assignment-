@@ -1,4 +1,5 @@
 """Business logic layer. No SQL (that's repositories/), no HTTP (that's routers/)."""
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,7 +28,9 @@ async def add_highlight(
     segment = await meetings_repo.get_segment(session, segment_id=segment_id)
     if segment is None:
         raise NotFoundError("segment", segment_id)
-    end_offset = min(end_offset, len(segment.text))  # clamp rather than 422 on a stale client-side selection
+    end_offset = min(
+        end_offset, len(segment.text)
+    )  # clamp rather than 422 on a stale client-side selection
     highlight = await highlights_repo.create_highlight(
         session,
         segment_id=segment_id,

@@ -1,5 +1,6 @@
 """Global FTS search (docs/ARCHITECTURE.md §7.2) — stemming, ranking, and safe
 handling of hostile query input."""
+
 from __future__ import annotations
 
 from httpx import AsyncClient
@@ -21,7 +22,9 @@ async def test_search_stemming_matches_related_word_forms(
     assert any(h["meeting_id"] == seeded_meeting_id for h in hits)
 
 
-async def test_search_snippet_highlights_the_match(client: AsyncClient, seeded_meeting_id: int) -> None:
+async def test_search_snippet_highlights_the_match(
+    client: AsyncClient, seeded_meeting_id: int
+) -> None:
     resp = await client.get("/api/search", params={"q": "precision"})
     hits = [h for h in resp.json()["items"] if h["meeting_id"] == seeded_meeting_id]
     assert hits

@@ -5,6 +5,7 @@ app/models/meeting.py), not nested under Summary itself — the API shape
 (SummaryOut carrying `chapters`) is assembled one level up, in
 app/services/summary.py, from the two pieces this module loads together.
 """
+
 from __future__ import annotations
 
 from sqlalchemy import select

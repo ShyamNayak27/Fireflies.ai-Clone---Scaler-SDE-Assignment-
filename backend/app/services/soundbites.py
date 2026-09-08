@@ -1,4 +1,5 @@
 """Business logic layer. No SQL (that's repositories/), no HTTP (that's routers/)."""
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession

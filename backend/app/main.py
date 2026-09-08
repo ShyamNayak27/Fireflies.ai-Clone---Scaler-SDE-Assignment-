@@ -23,7 +23,9 @@ settings = get_settings()
 if settings.sentry_dsn:
     import sentry_sdk
 
-    sentry_sdk.init(dsn=settings.sentry_dsn, environment=settings.environment, traces_sample_rate=0.1)
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn, environment=settings.environment, traces_sample_rate=0.1
+    )
 
 
 @asynccontextmanager

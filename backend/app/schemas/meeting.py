@@ -1,5 +1,6 @@
 """Pydantic request/response schemas — the API's actual contract (also what
 FastAPI turns into the OpenAPI doc)."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field

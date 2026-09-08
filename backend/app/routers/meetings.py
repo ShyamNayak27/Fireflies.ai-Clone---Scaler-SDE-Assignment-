@@ -7,6 +7,7 @@ Pydantic response, never an ORM object (an ORM instance is tied to the session
 that loaded it and is unsafe to hand back once that session closes). See
 docs/ARCHITECTURE.md §13.3 for the CacheBackend seam this reads and writes through.
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request, Response
@@ -135,7 +136,10 @@ async def get_meeting(
 @router.patch("/{meeting_id}", response_model=MeetingDetail)
 @limiter.limit(settings.rate_limit_write)
 async def update_meeting(
-    request: Request, meeting_id: int, body: MeetingUpdate, session: AsyncSession = Depends(get_session)
+    request: Request,
+    meeting_id: int,
+    body: MeetingUpdate,
+    session: AsyncSession = Depends(get_session),
 ) -> MeetingDetail:
     meeting = await meetings_service.update_meeting(
         session, meeting_id=meeting_id, title=body.title, description=body.description

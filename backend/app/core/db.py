@@ -5,6 +5,7 @@ readers proceed while a write is in flight (SQLite's actual concurrency story), 
 foreign_keys must be turned on per-connection — SQLite ignores FK constraints by
 default unless this pragma is set on every new connection.
 """
+
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
@@ -25,7 +26,7 @@ engine = create_async_engine(
 
 
 @event.listens_for(engine.sync_engine, "connect")
-def _set_sqlite_pragma(dbapi_connection, _connection_record) -> None:  # noqa: ANN001
+def _set_sqlite_pragma(dbapi_connection, _connection_record) -> None:
     if "sqlite" not in settings.database_url:
         return
     cursor = dbapi_connection.cursor()

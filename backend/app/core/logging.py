@@ -1,5 +1,6 @@
 """Structured JSON logging with a request id on every line, and the middleware
 that stamps X-Request-Id on every response (see docs/ARCHITECTURE.md §6.2)."""
+
 from __future__ import annotations
 
 import json
@@ -37,7 +38,7 @@ def configure_logging() -> None:
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):  # noqa: ANN001, ANN201
+    async def dispatch(self, request: Request, call_next):
         rid = request.headers.get("x-request-id", str(uuid.uuid4()))
         token = _request_id.set(rid)
         try:

@@ -1,6 +1,7 @@
 """FTS5-backed search (SQLite). Implements the SearchBackend seam from
 docs/ARCHITECTURE.md §7.3 — swap this module for a Postgres/OpenSearch
 implementation behind the same function signatures if SQLite is ever outgrown."""
+
 from __future__ import annotations
 
 import re
@@ -26,9 +27,10 @@ async def search_global(
 ) -> list[dict]:
     safe_query = _sanitize_fts_query(query)
     rows = (
-        await session.execute(
-            text(
-                """
+        (
+            await session.execute(
+                text(
+                    """
                 SELECT m.id AS meeting_id, m.title AS meeting_title,
                        s.id AS segment_id, s.start_ms,
                        p.name AS speaker_name,
@@ -42,10 +44,13 @@ async def search_global(
                 ORDER BY rank
                 LIMIT :limit
                 """
-            ),
-            {"q": safe_query, "owner_id": owner_id, "limit": limit},
+                ),
+                {"q": safe_query, "owner_id": owner_id, "limit": limit},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
     return [dict(r) for r in rows]
 
 
@@ -54,9 +59,10 @@ async def search_within_meeting(
 ) -> list[dict]:
     safe_query = _sanitize_fts_query(query)
     rows = (
-        await session.execute(
-            text(
-                """
+        (
+            await session.execute(
+                text(
+                    """
                 SELECT s.id AS segment_id, s.start_ms,
                        snippet(segments_fts, 0, '<mark>', '</mark>', '…', 12) AS snippet
                 FROM segments_fts
@@ -64,10 +70,13 @@ async def search_within_meeting(
                 WHERE segments_fts MATCH :q AND s.meeting_id = :meeting_id
                 ORDER BY bm25(segments_fts)
                 """
-            ),
-            {"q": safe_query, "meeting_id": meeting_id},
+                ),
+                {"q": safe_query, "meeting_id": meeting_id},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
     return [dict(r) for r in rows]
 
 
@@ -86,9 +95,10 @@ async def search_within_meeting_any(
         return []
     match_query = " OR ".join(keywords)
     rows = (
-        await session.execute(
-            text(
-                """
+        (
+            await session.execute(
+                text(
+                    """
                 SELECT s.id AS segment_id, s.start_ms,
                        snippet(segments_fts, 0, '<mark>', '</mark>', '…', 12) AS snippet,
                        bm25(segments_fts) AS rank
@@ -98,8 +108,11 @@ async def search_within_meeting_any(
                 ORDER BY rank
                 LIMIT :limit
                 """
-            ),
-            {"q": match_query, "meeting_id": meeting_id, "limit": limit},
+                ),
+                {"q": match_query, "meeting_id": meeting_id, "limit": limit},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
     return [dict(r) for r in rows]

@@ -3,6 +3,7 @@ separator is a comma instead of a dot and every cue is prefixed with a numeric
 index line — genuinely a different format worth its own parser (not just a VTT
 variant) because that index line and the comma-decimal are enough to make a
 regex written for one silently mis-parse the other."""
+
 from __future__ import annotations
 
 import re

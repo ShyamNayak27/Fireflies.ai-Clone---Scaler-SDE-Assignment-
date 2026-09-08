@@ -17,6 +17,7 @@ Both use `settings.ingest_scrub_salt` (app.core.config) so pseudonyms aren't
 guessable without it, but are cheap to audit/regenerate if the salt ever needs
 to rotate.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -25,14 +26,48 @@ import re
 from app.core.config import get_settings
 
 _FIRST_NAMES = [
-    "Jordan", "Casey", "Morgan", "Taylor", "Riley", "Avery", "Quinn", "Rowan",
-    "Skyler", "Reese", "Dakota", "Emerson", "Finley", "Harper", "Kendall",
-    "Logan", "Parker", "Sage", "Micah", "Nico",
+    "Jordan",
+    "Casey",
+    "Morgan",
+    "Taylor",
+    "Riley",
+    "Avery",
+    "Quinn",
+    "Rowan",
+    "Skyler",
+    "Reese",
+    "Dakota",
+    "Emerson",
+    "Finley",
+    "Harper",
+    "Kendall",
+    "Logan",
+    "Parker",
+    "Sage",
+    "Micah",
+    "Nico",
 ]
 _LAST_NAMES = [
-    "Reyes", "Patel", "Novak", "Alvarez", "Brennan", "Osei", "Lindqvist",
-    "Farah", "Chun", "Delgado", "Whitfield", "Marsh", "Okafor", "Ibsen",
-    "Castellano", "Prasad", "Duarte", "Yoon", "Bianchi", "Mercer",
+    "Reyes",
+    "Patel",
+    "Novak",
+    "Alvarez",
+    "Brennan",
+    "Osei",
+    "Lindqvist",
+    "Farah",
+    "Chun",
+    "Delgado",
+    "Whitfield",
+    "Marsh",
+    "Okafor",
+    "Ibsen",
+    "Castellano",
+    "Prasad",
+    "Duarte",
+    "Yoon",
+    "Bianchi",
+    "Mercer",
 ]
 
 _EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)*\.[a-zA-Z]{2,}")

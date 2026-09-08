@@ -1,6 +1,7 @@
 """Shared shapes for the ingest pipeline (docs/ARCHITECTURE.md §5). A parser's
 job ends at RawTranscript — everything after that (speaker resolution,
 normalization, scrubbing) is format-agnostic and lives in its own module."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

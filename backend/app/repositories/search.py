@@ -3,6 +3,7 @@ based on the session's actual bound dialect — never a config flag that could d
 from the real database, and never an import a caller has to know to change. See
 docs/ARCHITECTURE.md §7.3 / ADR-006.
 """
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession

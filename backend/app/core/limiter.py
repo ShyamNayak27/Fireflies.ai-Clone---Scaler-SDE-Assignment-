@@ -4,6 +4,7 @@ A single shared `limiter` instance so every router decorates against the same
 state — two separate Limiter() instances would each track their own counters and
 silently double the effective limit.
 """
+
 from __future__ import annotations
 
 from slowapi import Limiter

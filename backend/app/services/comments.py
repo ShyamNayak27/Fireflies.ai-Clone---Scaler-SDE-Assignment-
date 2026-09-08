@@ -1,4 +1,5 @@
 """Business logic layer. No SQL (that's repositories/), no HTTP (that's routers/)."""
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,7 +16,9 @@ async def list_comments(session: AsyncSession, *, meeting_id: int) -> list[Comme
     return await comments_repo.list_comments_for_meeting(session, meeting_id=meeting_id)
 
 
-async def add_comment(session: AsyncSession, *, segment_id: int, user_id: int, body: str) -> Comment:
+async def add_comment(
+    session: AsyncSession, *, segment_id: int, user_id: int, body: str
+) -> Comment:
     segment = await meetings_repo.get_segment(session, segment_id=segment_id)
     if segment is None:
         raise NotFoundError("segment", segment_id)

@@ -4,11 +4,11 @@ Runs on backend boot (see docs/ARCHITECTURE.md §11): if the meetings table is
 already non-empty, this is a no-op, so a Render restart never duplicates seed data.
 Run standalone with `python -m app.seed.seed`.
 """
+
 from __future__ import annotations
 
 import asyncio
 import hashlib
-import json
 import logging
 
 from sqlalchemy import func, select
@@ -31,8 +31,14 @@ from app.seed.timing import estimate_segments, total_duration_ms
 logger = logging.getLogger(__name__)
 
 AVATAR_RAMP = [
-    "#584CF4", "#0F6E68", "#D9A15C", "#C4507A",
-    "#3E7CB1", "#7A6FF0", "#4C9F70", "#B85C38",
+    "#584CF4",
+    "#0F6E68",
+    "#D9A15C",
+    "#C4507A",
+    "#3E7CB1",
+    "#7A6FF0",
+    "#4C9F70",
+    "#B85C38",
 ]
 
 
@@ -150,9 +156,7 @@ async def seed(session: AsyncSession) -> None:
 
     # Backfill the FTS5 index for anything the AFTER INSERT trigger might have raced
     # (it shouldn't, but this makes the seed self-healing rather than trusting silently).
-    await session.execute(
-        text_insert_missing_fts()
-    )
+    await session.execute(text_insert_missing_fts())
     await session.commit()
 
 

@@ -6,6 +6,7 @@ Hits a realistic mix of the endpoints an actual session would call: browsing the
 library, opening a meeting, paging its transcript, and searching. Reports p50/p95/p99
 latency and achieved throughput. Results are recorded in docs/ARCHITECTURE.md §13.1.
 """
+
 from __future__ import annotations
 
 import argparse

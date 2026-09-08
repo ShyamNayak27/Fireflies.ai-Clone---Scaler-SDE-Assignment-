@@ -3,6 +3,7 @@ the "download this meeting" bonus (docs/ARCHITECTURE.md §6.2 documented this as
 `GET .../export?format=md|txt` from the start). No SQL of its own beyond what the
 repositories it composes already expose; no HTTP (that's routers/export.py).
 """
+
 from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,7 +20,9 @@ def _mmss(ms: int) -> str:
     return f"{total_s // 60:02d}:{total_s % 60:02d}"
 
 
-async def render_meeting_export(session: AsyncSession, *, meeting_id: int, fmt: str) -> tuple[str, str]:
+async def render_meeting_export(
+    session: AsyncSession, *, meeting_id: int, fmt: str
+) -> tuple[str, str]:
     """Returns (content, filename). `fmt` is 'md' or 'txt' — markdown headings
     collapse to plain uppercase labels for the text variant rather than being a
     second, separately-maintained template."""
@@ -27,9 +30,13 @@ async def render_meeting_export(session: AsyncSession, *, meeting_id: int, fmt: 
         raise ValueError(f"Unsupported export format: {fmt!r}")
 
     meeting = await get_meeting_or_404(session, meeting_id)
-    meeting_with_summary = await summary_repo.get_meeting_with_summary(session, meeting_id=meeting_id)
+    meeting_with_summary = await summary_repo.get_meeting_with_summary(
+        session, meeting_id=meeting_id
+    )
     if meeting_with_summary is None:
-        raise NotFoundError("meeting", meeting_id)  # can't happen given the 404 above, but keeps mypy honest
+        raise NotFoundError(
+            "meeting", meeting_id
+        )  # can't happen given the 404 above, but keeps mypy honest
     action_items = await action_items_repo.list_action_items(session, meeting_id=meeting_id)
     segments = await meetings_repo.get_all_segments(session, meeting_id=meeting_id)
 
@@ -75,9 +82,15 @@ async def render_meeting_export(session: AsyncSession, *, meeting_id: int, fmt: 
         h2("Transcript")
         for seg in segments:
             speaker = seg.speaker.name if seg.speaker else "Unknown"
-            lines.append(f"**[{_mmss(seg.start_ms)}] {speaker}:** {seg.text}" if md else f"[{_mmss(seg.start_ms)}] {speaker}: {seg.text}")
+            lines.append(
+                f"**[{_mmss(seg.start_ms)}] {speaker}:** {seg.text}"
+                if md
+                else f"[{_mmss(seg.start_ms)}] {speaker}: {seg.text}"
+            )
 
     content = "\n".join(lines).rstrip() + "\n"
-    safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in meeting.title).strip() or "meeting"
+    safe_title = (
+        "".join(c if c.isalnum() or c in " -_" else "" for c in meeting.title).strip() or "meeting"
+    )
     filename = f"{safe_title.replace(' ', '_')}.{fmt}"
     return content, filename

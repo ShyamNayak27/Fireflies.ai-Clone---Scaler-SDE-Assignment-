@@ -3,6 +3,7 @@ today — search_sqlite.py (FTS5, local dev) and search_postgres.py (tsvector, t
 deployed environment) — selected at call time by dialect, never by a hardcoded
 import, so the same service code runs against either (docs/ARCHITECTURE.md ADR-006).
 """
+
 from __future__ import annotations
 
 from typing import Protocol

@@ -4,6 +4,7 @@ function (no DB access) so `app/services/ingest.py` only has to worry about the
 Job lifecycle and persistence around it — exactly the same split
 `app/ai/transcriber.py` vs `app/services/recordings.py` already established.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -25,7 +26,9 @@ class IngestResult:
 def run_ingest_pipeline(raw: str, filename: str) -> IngestResult:
     raw_transcript, parser_name = parse_transcript(raw, filename)
     if not raw_transcript.utterances:
-        return IngestResult(segments=[], parser_used=parser_name, timestamps_estimated=False, speaker_count=0)
+        return IngestResult(
+            segments=[], parser_used=parser_name, timestamps_estimated=False, speaker_count=0
+        )
 
     speaker_map = resolve_speakers(raw_transcript.utterances)
     normalized = normalize(raw_transcript.utterances, speaker_map)

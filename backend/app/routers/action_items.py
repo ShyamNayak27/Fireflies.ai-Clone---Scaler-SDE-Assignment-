@@ -5,6 +5,7 @@ API surface documented in docs/ARCHITECTURE.md §6.2 — an action item's id is
 already globally unique, and the client editing/completing/deleting one from
 the summary panel doesn't need to carry the meeting id around to do it.
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request

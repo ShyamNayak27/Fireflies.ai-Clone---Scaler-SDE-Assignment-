@@ -1,5 +1,6 @@
 """Normalization stage (docs/ARCHITECTURE.md §5.3): timing synthesis/passthrough
 and the gap-merge rule."""
+
 from __future__ import annotations
 
 from app.ingest.normalizer import GAP_MERGE_THRESHOLD_MS, normalize
@@ -47,7 +48,10 @@ def test_close_same_speaker_utterances_merge() -> None:
     utterances = [
         RawUtterance(speaker_label="Alex", text="First part.", start_ms=0, end_ms=1000),
         RawUtterance(
-            speaker_label="Alex", text="Second part.", start_ms=1000 + GAP_MERGE_THRESHOLD_MS - 1, end_ms=3000
+            speaker_label="Alex",
+            text="Second part.",
+            start_ms=1000 + GAP_MERGE_THRESHOLD_MS - 1,
+            end_ms=3000,
         ),
     ]
     result = normalize(utterances, _speakers_for(utterances))
@@ -60,7 +64,10 @@ def test_far_apart_same_speaker_utterances_do_not_merge() -> None:
     utterances = [
         RawUtterance(speaker_label="Alex", text="First part.", start_ms=0, end_ms=1000),
         RawUtterance(
-            speaker_label="Alex", text="Second part.", start_ms=1000 + GAP_MERGE_THRESHOLD_MS + 1, end_ms=5000
+            speaker_label="Alex",
+            text="Second part.",
+            start_ms=1000 + GAP_MERGE_THRESHOLD_MS + 1,
+            end_ms=5000,
         ),
     ]
     result = normalize(utterances, _speakers_for(utterances))

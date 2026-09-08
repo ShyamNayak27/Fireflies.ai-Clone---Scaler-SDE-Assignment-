@@ -3,6 +3,7 @@ stores it, and kicks off transcription as a background job — the client polls
 GET /api/jobs/{id}, the exact same shape every other async ingest job uses
 (docs/ARCHITECTURE.md §6.4, §14).
 """
+
 from __future__ import annotations
 
 import uuid

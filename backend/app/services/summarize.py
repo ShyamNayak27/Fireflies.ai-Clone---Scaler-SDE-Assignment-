@@ -4,6 +4,7 @@ summaries. Same Job lifecycle as `app/services/recordings.py` and
 `app/services/ingest.py`: request handler creates the row, a BackgroundTask
 runs this against a fresh session.
 """
+
 from __future__ import annotations
 
 import json
@@ -43,7 +44,9 @@ async def _replace_summary(session: AsyncSession, *, meeting_id: int, draft: Sum
     await session.execute(delete(Summary).where(Summary.meeting_id == meeting_id))
 
     session.add(
-        Summary(meeting_id=meeting_id, overview=draft.overview, model=draft.model, prompt_version="v1")
+        Summary(
+            meeting_id=meeting_id, overview=draft.overview, model=draft.model, prompt_version="v1"
+        )
     )
     for position, chapter_draft in enumerate(draft.chapters):
         chapter = Chapter(
@@ -66,7 +69,9 @@ async def _replace_summary(session: AsyncSession, *, meeting_id: int, draft: Sum
             )
 
 
-async def _resolve_assignee_id(session: AsyncSession, *, meeting_id: int, speaker_name: str | None) -> int | None:
+async def _resolve_assignee_id(
+    session: AsyncSession, *, meeting_id: int, speaker_name: str | None
+) -> int | None:
     if not speaker_name:
         return None
     stmt = select(Participant.id).where(
@@ -125,7 +130,11 @@ async def process_summarize_job(session: AsyncSession, *, job: Job) -> None:
             continue  # already there — a repeated regenerate-summary call is idempotent, not additive
         source_segment = next((s for s in segments if s.id == item_draft.source_segment_id), None)
         assignee_id = await _resolve_assignee_id(
-            session, meeting_id=meeting_id, speaker_name=source_segment.speaker.name if source_segment and source_segment.speaker else None
+            session,
+            meeting_id=meeting_id,
+            speaker_name=source_segment.speaker.name
+            if source_segment and source_segment.speaker
+            else None,
         )
         await create_action_item(
             session,

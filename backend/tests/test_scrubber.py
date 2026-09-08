@@ -1,6 +1,7 @@
 """Scrubbing must be airtight: no original name, email, phone, or URL survives
 it. This is the test docs/ARCHITECTURE.md §5.4 flagged as missing — "no
 automated test yet asserts 'no original name survives scrubbing'"."""
+
 from __future__ import annotations
 
 from app.ingest.scrub import Scrubber
@@ -58,7 +59,9 @@ def test_phone_number_is_scrubbed() -> None:
 
 def test_url_is_scrubbed() -> None:
     scrubber = Scrubber(salt="fixed-salt")
-    text = scrubber.scrub_text("See https://internal.hypotenuse-analytics.com/dash for the numbers.")
+    text = scrubber.scrub_text(
+        "See https://internal.hypotenuse-analytics.com/dash for the numbers."
+    )
     assert "internal.hypotenuse-analytics.com" not in text
 
 

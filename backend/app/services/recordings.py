@@ -4,6 +4,7 @@ same Meeting/Participant/TranscriptSegment rows a pasted transcript would, so
 every downstream feature (search, summary, transcript UI) needs no special case
 for "a meeting that came from a live recording".
 """
+
 from __future__ import annotations
 
 import json
@@ -20,9 +21,12 @@ from app.seed.seed import avatar_color_for
 async def create_recording_job(
     session: AsyncSession, *, owner_id: int, audio_path: str, title: str
 ) -> Job:
-    job = Job(id=str(uuid.uuid4()), type="ingest", status="queued", payload=json.dumps(
-        {"audio_path": audio_path, "title": title, "owner_id": owner_id}
-    ))
+    job = Job(
+        id=str(uuid.uuid4()),
+        type="ingest",
+        status="queued",
+        payload=json.dumps({"audio_path": audio_path, "title": title, "owner_id": owner_id}),
+    )
     session.add(job)
     await session.commit()
     await session.refresh(job)

@@ -4,6 +4,7 @@ DATABASE_URL has to be set before that module — or anything importing it — i
 first touched anywhere in the process. That's why this file sets the env var
 at collection time, before any `app.*` import below.
 """
+
 from __future__ import annotations
 
 import os
@@ -13,7 +14,9 @@ from collections.abc import AsyncIterator
 _tmp_dir = tempfile.mkdtemp(prefix="fireflies-test-")
 os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{_tmp_dir}/test.db"
 os.environ["INGEST_SCRUB_SALT"] = "test-salt"
-os.environ["RATE_LIMIT_DEFAULT"] = "10000/minute"  # tests fire many requests fast; hardening's own limits are covered separately
+os.environ["RATE_LIMIT_DEFAULT"] = (
+    "10000/minute"  # tests fire many requests fast; hardening's own limits are covered separately
+)
 os.environ["RATE_LIMIT_AI"] = "10000/minute"
 
 import pytest_asyncio
@@ -97,7 +100,10 @@ async def meeting_id(client: AsyncClient) -> int:
     its own via `seeded_meeting_id` below instead."""
     resp = await client.post(
         "/api/meetings/ingest",
-        data={"title": "API test meeting", "text": "Speaker One  0:00\nHello there, this is a test line."},
+        data={
+            "title": "API test meeting",
+            "text": "Speaker One  0:00\nHello there, this is a test line.",
+        },
     )
     assert resp.status_code == 202
     job_id = resp.json()["id"]

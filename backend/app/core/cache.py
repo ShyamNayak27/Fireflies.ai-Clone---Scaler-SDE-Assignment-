@@ -7,6 +7,7 @@ cached page that could contain it (list pages, the detail, its transcript) rathe
 than trying to enumerate exactly which cache entries a given write could affect,
 which is the class of bug that produces stale reads after a mutation.
 """
+
 from __future__ import annotations
 
 import time
