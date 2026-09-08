@@ -13,8 +13,42 @@ interface TranscriptPanelProps {
   segments: Segment[];
   activeIndex: number;
   highlightedIds?: ReadonlySet<number>;
+  /** The live "Find in transcript" query, used only to mark the matched
+   * substring inside a highlighted row's text — see MarkedText below. */
+  highlightQuery?: string;
   onSeek: (ms: number) => void;
   onEndReached?: () => void;
+}
+
+/** Case-insensitive substring highlight — wraps every occurrence of `query`
+ * in `text` with a <mark>-style span. A search match used to be visually
+ * identical to "this is the currently playing segment" (both fell back to
+ * the same `--surface-2` tint), which made "highlighted transcript search
+ * matches" true in data but not something anyone could actually see. */
+function MarkedText({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  if (!q) return <>{text}</>;
+  const lower = text.toLowerCase();
+  const needle = q.toLowerCase();
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  let matchIndex = lower.indexOf(needle, cursor);
+  if (matchIndex === -1) return <>{text}</>;
+  while (matchIndex !== -1) {
+    parts.push(text.slice(cursor, matchIndex));
+    parts.push(
+      <mark
+        key={matchIndex}
+        style={{ background: "var(--accent-warn)", color: "var(--text)", borderRadius: 2 }}
+      >
+        {text.slice(matchIndex, matchIndex + needle.length)}
+      </mark>,
+    );
+    cursor = matchIndex + needle.length;
+    matchIndex = lower.indexOf(needle, cursor);
+  }
+  parts.push(text.slice(cursor));
+  return <>{parts}</>;
 }
 
 /**
@@ -29,6 +63,7 @@ export function TranscriptPanel({
   segments,
   activeIndex,
   highlightedIds,
+  highlightQuery,
   onSeek,
   onEndReached,
 }: TranscriptPanelProps) {
@@ -97,6 +132,7 @@ export function TranscriptPanel({
                 segment={segment}
                 isActive={isActive}
                 isHighlighted={isHighlighted}
+                highlightQuery={isHighlighted ? highlightQuery : undefined}
                 onMeasure={(h) => setRowHeight(index, h)}
                 onSeek={onSeek}
               />
@@ -112,12 +148,14 @@ function TranscriptRow({
   segment,
   isActive,
   isHighlighted,
+  highlightQuery,
   onMeasure,
   onSeek,
 }: {
   segment: Segment;
   isActive: boolean;
   isHighlighted: boolean;
+  highlightQuery?: string;
   onMeasure: (height: number) => void;
   onSeek: (ms: number) => void;
 }) {
@@ -137,8 +175,15 @@ function TranscriptRow({
     <div
       ref={ref}
       id={`segment-${segment.id}`}
-      className="flex gap-2.5 rounded-[var(--radius-control)] px-2 py-2.5 transition-colors"
-      style={{ background: isActive ? "var(--surface-2)" : isHighlighted ? "var(--surface-2)" : "transparent" }}
+      className="flex gap-2.5 rounded-[var(--radius-control)] border-l-2 px-2 py-2.5 transition-colors"
+      style={{
+        background: isHighlighted
+          ? "color-mix(in srgb, var(--accent-warn) 14%, transparent)"
+          : isActive
+            ? "var(--surface-2)"
+            : "transparent",
+        borderLeftColor: isHighlighted ? "var(--accent-warn)" : "transparent",
+      }}
     >
       <div
         className="flex h-6 w-6 flex-none items-center justify-center rounded-full text-[9px] font-semibold text-white"
@@ -165,7 +210,7 @@ function TranscriptRow({
           style={{ color: isActive ? "var(--text)" : "var(--text-muted)" }}
           onClick={() => onSeek(segment.start_ms)}
         >
-          {segment.text}
+          {highlightQuery ? <MarkedText text={segment.text} query={highlightQuery} /> : segment.text}
         </p>
       </div>
     </div>

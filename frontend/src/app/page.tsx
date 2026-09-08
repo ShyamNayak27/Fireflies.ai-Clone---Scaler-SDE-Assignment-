@@ -2,15 +2,47 @@ import Link from "next/link";
 
 import { IconRail } from "@/components/layout/IconRail";
 import { TopBar } from "@/components/layout/TopBar";
+import { LibraryFilterBar } from "@/components/meetings/LibraryFilterBar";
 import { MeetingRow } from "@/components/meetings/MeetingRow";
 import { apiGet } from "@/lib/api/client";
-import type { MeetingListResponse } from "@/lib/api/types";
+import type { MeetingListResponse, Tag } from "@/lib/api/types";
 
-// Server component: first paint has real data, no client-side loading flash for
-// the initial page. See docs/ARCHITECTURE.md §8.1 — RSC for the library's first
-// load, client-side takes over for infinite scroll beyond page one.
-export default async function LibraryPage() {
-  const data = await apiGet<MeetingListResponse>("/api/meetings?limit=20");
+type SearchParams = Record<string, string | string[] | undefined>;
+
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+// Server component: filters live in the URL's search params, so the initial
+// paint already reflects them (no client refetch flash, and a filtered view
+// is a shareable/bookmarkable link) — see docs/ARCHITECTURE.md §8.1 for the
+// same reasoning applied to the unfiltered case this extends.
+export default async function LibraryPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const q = first(sp.q)?.trim() || undefined;
+  const participant = first(sp.participant)?.trim() || undefined;
+  const tag = first(sp.tag)?.trim() || undefined;
+  const dateFrom = first(sp.from)?.trim() || undefined;
+  const dateTo = first(sp.to)?.trim() || undefined;
+  const sort = first(sp.sort) === "oldest" ? "oldest" : "recent";
+
+  const query = new URLSearchParams({ limit: "20", sort });
+  if (q) query.set("q", q);
+  if (participant) query.set("participant", participant);
+  if (tag) query.set("tag", tag);
+  if (dateFrom) query.set("date_from", dateFrom);
+  if (dateTo) query.set("date_to", dateTo);
+
+  const [data, allTags] = await Promise.all([
+    apiGet<MeetingListResponse>(`/api/meetings?${query.toString()}`),
+    apiGet<Tag[]>("/api/tags"),
+  ]);
+
+  const activeFilterCount = [q, participant, tag, dateFrom, dateTo].filter(Boolean).length;
 
   return (
     <div className="flex h-screen" style={{ background: "var(--bg)" }}>
@@ -25,7 +57,8 @@ export default async function LibraryPage() {
                   All meetings
                 </h1>
                 <p className="mt-0.5 text-sm" style={{ color: "var(--text-faint)" }}>
-                  {data.items.length} meeting{data.items.length === 1 ? "" : "s"} · transcribed &amp; searchable
+                  {data.items.length} meeting{data.items.length === 1 ? "" : "s"}
+                  {activeFilterCount > 0 ? ` matching ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"}` : " · transcribed & searchable"}
                 </p>
               </div>
               <Link
@@ -36,13 +69,23 @@ export default async function LibraryPage() {
                 + Import transcript
               </Link>
             </div>
+
+            <LibraryFilterBar
+              tags={allTags}
+              initial={{ q, participant, tag, from: dateFrom, to: dateTo, sort }}
+            />
+
             <div
-              className="overflow-hidden rounded-[var(--radius-card)] border"
+              className="mt-4 overflow-hidden rounded-[var(--radius-card)] border"
               style={{ borderColor: "var(--border)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
             >
-              {data.items.map((meeting) => (
-                <MeetingRow key={meeting.id} meeting={meeting} />
-              ))}
+              {data.items.length === 0 ? (
+                <div className="px-5 py-10 text-center text-sm" style={{ color: "var(--text-faint)" }}>
+                  No meetings match these filters.
+                </div>
+              ) : (
+                data.items.map((meeting) => <MeetingRow key={meeting.id} meeting={meeting} />)
+              )}
             </div>
           </div>
         </main>

@@ -46,6 +46,11 @@ class MeetingDetail(MeetingListItem):
     timestamps_estimated: bool
 
 
+class MeetingUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=4000)
+
+
 class SegmentOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int

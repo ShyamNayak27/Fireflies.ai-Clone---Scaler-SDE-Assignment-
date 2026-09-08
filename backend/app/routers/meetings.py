@@ -9,7 +9,7 @@ docs/ARCHITECTURE.md §13.3 for the CacheBackend seam this reads and writes thro
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import cache, invalidate_meeting_caches
@@ -27,6 +27,7 @@ from app.schemas.meeting import (
     MeetingDetail,
     MeetingListItem,
     MeetingListResponse,
+    MeetingUpdate,
     ParticipantOut,
     SegmentOut,
     SummaryOut,
@@ -57,14 +58,31 @@ async def list_meetings(
     cursor: str | None = None,
     limit: int = Query(default=20, le=100),
     tag: str | None = None,
+    q: str | None = None,
+    participant: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    sort: str = Query(default="recent", pattern="^(recent|oldest)$"),
     session: AsyncSession = Depends(get_session),
 ) -> MeetingListResponse:
-    cache_key = f"meetings:list:{DEMO_OWNER_ID}:{cursor}:{limit}:{tag}"
+    cache_key = (
+        f"meetings:list:{DEMO_OWNER_ID}:{cursor}:{limit}:{tag}:{q}:{participant}:"
+        f"{date_from}:{date_to}:{sort}"
+    )
     if (hit := cache.get(cache_key)) is not None:
         return hit  # type: ignore[return-value]
 
     items, next_cursor = await meetings_service.list_meetings_page(
-        session, owner_id=DEMO_OWNER_ID, cursor=cursor, limit=limit, tag=tag
+        session,
+        owner_id=DEMO_OWNER_ID,
+        cursor=cursor,
+        limit=limit,
+        tag=tag,
+        q=q,
+        participant=participant,
+        date_from=date_from,
+        date_to=date_to,
+        sort=sort,
     )
     tags_by_meeting = await meetings_service.tags_for_meetings(session, meetings=items)
     response = MeetingListResponse(
@@ -112,6 +130,41 @@ async def get_meeting(
     )
     cache.set(cache_key, response, settings.cache_ttl_seconds)
     return response
+
+
+@router.patch("/{meeting_id}", response_model=MeetingDetail)
+@limiter.limit(settings.rate_limit_write)
+async def update_meeting(
+    request: Request, meeting_id: int, body: MeetingUpdate, session: AsyncSession = Depends(get_session)
+) -> MeetingDetail:
+    meeting = await meetings_service.update_meeting(
+        session, meeting_id=meeting_id, title=body.title, description=body.description
+    )
+    meeting_tags = await tags_service.list_tags_for_meeting(session, meeting_id=meeting_id)
+    invalidate_meeting_caches(meeting_id)
+    return MeetingDetail(
+        id=meeting.id,
+        title=meeting.title,
+        started_at=meeting.started_at,
+        duration_ms=meeting.duration_ms,
+        status=meeting.status,
+        participants=[ParticipantOut.model_validate(p) for p in meeting.participants],
+        tags=[TagOut.model_validate(t) for t in meeting_tags],
+        description=meeting.description,
+        media_url=meeting.media_url,
+        media_type=meeting.media_type,
+        timestamps_estimated=meeting.timestamps_estimated,
+    )
+
+
+@router.delete("/{meeting_id}", status_code=204)
+@limiter.limit(settings.rate_limit_write)
+async def delete_meeting(
+    request: Request, meeting_id: int, session: AsyncSession = Depends(get_session)
+) -> Response:
+    await meetings_service.delete_meeting(session, meeting_id=meeting_id)
+    invalidate_meeting_caches(meeting_id)
+    return Response(status_code=204)
 
 
 @router.get("/{meeting_id}/transcript", response_model=TranscriptResponse)

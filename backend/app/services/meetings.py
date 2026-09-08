@@ -10,10 +10,29 @@ from app.repositories import tags as tags_repo
 
 
 async def list_meetings_page(
-    session: AsyncSession, *, owner_id: int, cursor: str | None, limit: int, tag: str | None = None
+    session: AsyncSession,
+    *,
+    owner_id: int,
+    cursor: str | None,
+    limit: int,
+    tag: str | None = None,
+    q: str | None = None,
+    participant: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    sort: str = "recent",
 ) -> tuple[list[Meeting], str | None]:
     return await meetings_repo.list_meetings(
-        session, owner_id=owner_id, cursor=cursor, limit=limit, tag=tag
+        session,
+        owner_id=owner_id,
+        cursor=cursor,
+        limit=limit,
+        tag=tag,
+        q=q,
+        participant=participant,
+        date_from=date_from,
+        date_to=date_to,
+        sort=sort,
     )
 
 
@@ -26,6 +45,22 @@ async def get_meeting_or_404(session: AsyncSession, meeting_id: int) -> Meeting:
     if meeting is None:
         raise NotFoundError("meeting", meeting_id)
     return meeting
+
+
+async def update_meeting(
+    session: AsyncSession, *, meeting_id: int, title: str | None, description: str | None
+) -> Meeting:
+    meeting = await get_meeting_or_404(session, meeting_id)
+    meeting = await meetings_repo.update_meeting(session, meeting=meeting, title=title, description=description)
+    await session.commit()
+    await session.refresh(meeting, attribute_names=["participants"])
+    return meeting
+
+
+async def delete_meeting(session: AsyncSession, *, meeting_id: int) -> None:
+    await get_meeting_or_404(session, meeting_id)  # 404 before deleting a row that isn't there
+    await meetings_repo.delete_meeting(session, meeting_id=meeting_id)
+    await session.commit()
 
 
 async def get_transcript_page(

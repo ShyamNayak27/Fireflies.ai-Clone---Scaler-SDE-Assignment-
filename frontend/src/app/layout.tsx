@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { CommandPalette } from "@/components/layout/CommandPalette";
+import { ToastProvider } from "@/components/layout/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
-        {children}
-        <CommandPalette />
+        <ToastProvider>
+          {children}
+          <CommandPalette />
+        </ToastProvider>
       </body>
     </html>
   );

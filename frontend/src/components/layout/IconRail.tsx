@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import { useToast } from "@/components/layout/ToastProvider";
 
 type NavItem =
   | { id: string; label: string; glyph: string; kind: "link"; href: string }
@@ -33,14 +34,12 @@ const EXPANDED_WIDTH = 216;
  */
 export function IconRail() {
   const [expanded, setExpanded] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { show } = useToast();
 
-  const announceSoon = useCallback((label: string) => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    setToast(`${label} — coming soon`);
-    toastTimer.current = setTimeout(() => setToast(null), 1900);
-  }, []);
+  const announceSoon = useCallback(
+    (label: string) => show(`${label} — coming soon`),
+    [show],
+  );
 
   const openSearch = useCallback(() => {
     window.dispatchEvent(new CustomEvent("open-command-palette"));
@@ -71,15 +70,6 @@ export function IconRail() {
           <RailRow key={item.id} item={item} expanded={expanded} onSoon={announceSoon} onSearch={openSearch} />
         ))}
       </nav>
-      {toast && (
-        <div
-          role="status"
-          className="pointer-events-none absolute bottom-4 left-2 z-50 whitespace-nowrap rounded-[var(--radius-control)] px-3 py-1.5 text-xs font-medium text-white shadow-lg"
-          style={{ background: "var(--text)" }}
-        >
-          {toast}
-        </div>
-      )}
     </div>
   );
 }
