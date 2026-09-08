@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Backend data & secrets
+backend/data/
+backend/.env
+backend/app/ingest/.scrub_map.json
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+frontend/next-env.d.ts
+
+# OS / editor
+.DS_Store
+.vscode/
+*.log

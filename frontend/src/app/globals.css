@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* Design tokens — derived from the real Fireflies UI, see docs/ARCHITECTURE.md §8.5.
+   One place for the palette; dark mode redefines the same names so components
+   never branch on theme themselves. */
+:root {
+  --primary: #584cf4;
+  --primary-hover: #4a3fe0;
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #eef0f5;
+  --border: #e6e8ef;
+  --text: #12141a;
+  --text-muted: #5b6172;
+  --text-faint: #9297a6;
+  --accent-warn: #f59e0b;
+  --accent-success: #16a34a;
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --rail-width: 56px;
+  --topbar-height: 56px;
+  --transcript-width: 400px;
+}
+
+/* Dark-mode tokens apply in two cases: the OS is set to dark and the user
+   hasn't explicitly chosen light (the `:not([data-theme="light"])` guard),
+   or the user explicitly chose dark via the toggle in TopBar
+   (`[data-theme="dark"]`, which must win over the OS either way). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #7b71f7;
+    --primary-hover: #948dfa;
+    --bg: #0f1115;
+    --surface: #171a21;
+    --surface-2: #1e222b;
+    --border: #2a2f3a;
+    --text: #e7e9ee;
+    --text-muted: #9aa0b2;
+    --text-faint: #6b7180;
+    --accent-warn: #fbbf24;
+    --accent-success: #4ade80;
+  }
+}
+
+:root[data-theme="dark"] {
+  --primary: #7b71f7;
+  --primary-hover: #948dfa;
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #1e222b;
+  --border: #2a2f3a;
+  --text: #e7e9ee;
+  --text-muted: #9aa0b2;
+  --text-faint: #6b7180;
+  --accent-warn: #fbbf24;
+  --accent-success: #4ade80;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* RecordMeetingForm's recording indicator (frontend/src/components/meetings/RecordMeetingForm.tsx) */
+@keyframes recording-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
