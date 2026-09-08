@@ -15,11 +15,14 @@ export function MeetingRow({ meeting }: { meeting: MeetingListItem }) {
   return (
     <Link
       href={`/meetings/${meeting.id}`}
-      className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b px-5 py-3.5 transition-colors hover:bg-[var(--surface-2)]"
+      className="group grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b px-5 py-3.5 transition-colors last:border-b-0 hover:bg-[var(--surface-2)]"
       style={{ borderColor: "var(--border)" }}
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>
+        <p
+          className="truncate text-sm font-medium transition-colors group-hover:text-[var(--primary)]"
+          style={{ color: "var(--text)" }}
+        >
           {meeting.title}
         </p>
         <p className="mt-0.5 text-xs" style={{ color: "var(--text-faint)" }}>

@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Fireflies Clone — Meeting Notes & Transcription",
-  description: "AI-powered meeting notes, transcripts, soundbites, and action items.",
+  description:
+    "AI meeting notes, transcription, and search — a Fireflies.ai-style workspace for recordings, summaries, and action items.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

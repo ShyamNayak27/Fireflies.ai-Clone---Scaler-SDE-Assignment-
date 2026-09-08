@@ -50,6 +50,17 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, close]);
 
+  // Lets the rail's Search icon (IconRail.tsx) open the same palette instead
+  // of duplicating a search UI — this component owns the one real search
+  // experience in the app.
+  useEffect(() => {
+    function onOpenRequest() {
+      setOpen(true);
+    }
+    window.addEventListener("open-command-palette", onOpenRequest);
+    return () => window.removeEventListener("open-command-palette", onOpenRequest);
+  }, []);
+
   useEffect(() => {
     if (open) requestAnimationFrame(() => inputRef.current?.focus());
   }, [open]);
