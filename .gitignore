@@ -21,3 +21,4 @@ frontend/next-env.d.ts
 *.log
 Claude outputs/
 temp_*/
+Demo Video/

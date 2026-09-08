@@ -10,6 +10,8 @@ items, tags, and search, built as a Next.js + FastAPI app on Postgres/SQLite.
 > The backend is on Render's free tier — the first request after a period of idle takes
 > ~50s to cold-start. That's expected, not a broken link.
 
+<video src="docs/demo-video.mp4" controls width="100%" autoplay loop muted></video>
+
 ![Meeting library — filter, sort, and search](docs/screenshots/01-library.png)
 
 ## Contents
